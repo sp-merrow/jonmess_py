@@ -36,13 +36,23 @@ for page in songUrls:
                     messLyrics.append(lyric.text)
 
         openBracketElements = []
+        closeBracketElements = []
 
         for count, ele in enumerate(lyricSheet):
             if '[' in ele.text:
-                 openBracketElements.append(count+1)
+                openBracketElements.append(count+1)
+                print("Open bracket: {}".format(ele.text))
+
+        for count, ele in enumerate(lyricSheet):
+            if ']' in ele.text:
+                closeBracketElements.append(count+1)
+                print("Closed bracket: {}".format(ele.text))
+
+
 
         messElements = []
         for count, ele in enumerate(lyricSheet):
+            # for oEle in openBracketElements:
             if 'Jon Mess' in ele.text and '&' not in ele.text and '[' in ele.text:
                 messElements.append(count+1)
 
@@ -65,3 +75,4 @@ for page in songUrls:
                 for sl in range(slice[0], slice[1]):
                     if count == sl and ele.text and ele.text not in notLyrics:
                         print("Lyric number ", count, "is ", ele.text)
+
