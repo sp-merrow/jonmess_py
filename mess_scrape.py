@@ -25,12 +25,12 @@ for page in songUrls:
     for lyricSheet in soupLyrics:
         italics = lyricSheet.find_all('i')
 
-        messy = False
+        veryMessy = False
         for ele in italics:
             if 'Jon Mess' in ele.text:
-                messy = True
+                veryMessy = True
 
-        if messy:
+        if veryMessy:
             for lyric in italics:
                 if lyric.text != 'Jon Mess':
                     messLyrics.append(lyric.text)
@@ -40,33 +40,66 @@ for page in songUrls:
 
         for count, ele in enumerate(lyricSheet):
             if '[' in ele.text:
-                openBracketElements.append(count+1)
+                openBracketElements.append(count)
                 print("Open bracket: {}".format(ele.text))
 
         for count, ele in enumerate(lyricSheet):
             if ']' in ele.text:
-                closeBracketElements.append(count+1)
+                closeBracketElements.append(count)
                 print("Closed bracket: {}".format(ele.text))
-
-
 
         messElements = []
         for count, ele in enumerate(lyricSheet):
-            # for oEle in openBracketElements:
-            if 'Jon Mess' in ele.text and '&' not in ele.text and '[' in ele.text:
+            if 'Jon Mess' in ele.text and '[' in ele.text:
                 messElements.append(count+1)
 
         slice = []
         for messNum in messElements:
             for bCount, brackNum in enumerate(openBracketElements):
+                onlyMess, messy = False, False
+                elmntText = ""
+                if openBracketElements[bCount] != closeBracketElements[bCount]:
+                    for eCount, elmnt in enumerate(lyricSheet):
+                        if eCount in range(openBracketElements[bCount], closeBracketElements[bCount]+1):
+                            elmntText += elmnt.text
+                            if 'Jon Mess' in elmnt.text and '&' not in elmnt.text:
+                                onlyMess = True
+                            if elmnt.name == 'i' and 'Jon Mess' in elmntText:
+                                messy = True
+                                
+                else:
+                    for eCount, elmnt in enumerate(lyricSheet):
+                        if eCount == bCount:
+                            elmntText = elmnt.text
+                        if elmnt.name == 'i' and 'Jon Mess' in elmntText:
+                            messy = True
+                if 'Jon Mess' in elmntText and '&' not in elmntText:
+                    onlyMess = True
+
+                #debug
+                if onlyMess:
+                    print("ONLY MESS")
+                if messy:
+                    print("MESSY")
+
                 if brackNum == messNum and openBracketElements.index(brackNum) != len(openBracketElements)-1 and messNum != messElements[-1]:
-                    newSlice = [messNum, openBracketElements[bCount+1]]
-                    if newSlice:
-                        slice = newSlice
-                elif messNum == messElements[-1] and brackNum == openBracketElements[-1]:
-                    newSlice = [messNum, len(lyricSheet)-1]
-                    if newSlice:
-                        slice = newSlice
+                    if onlyMess:
+                        newSlice = [messNum, closeBracketElements[bCount]]
+                        if newSlice:
+                            slice = newSlice
+                    elif messy and not onlyMess:
+                        for eCount, elmnt in enumerate(lyricSheet):
+                            if elmnt.name == 'i':
+                                newSlice = [messNum, closeBracketElements[bCount]]
+                                if newSlice:
+                                    slice = newSlice
+                            
+                        
+                elif messNum == messElements[-1] and brackNum == closeBracketElements[-1]:
+                    if onlyMess or (not messy and not onlyMess):
+                        newSlice = [messNum, closeBracketElements[bCount]]
+                        if newSlice:
+                            slice = newSlice
 
         print(slice)
         
